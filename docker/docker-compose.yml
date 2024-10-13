@@ -11,6 +11,7 @@ services:
     depends_on:
       - ipfs
       - postgres
+      - ganache
     extra_hosts:
       - host.docker.internal:host-gateway
     environment:
@@ -19,14 +20,19 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:http://host.docker.internal:8545'
+      ethereum: 'ganache:http://ganache:8545'
       GRAPH_LOG: info
+      GRAPH_ETHEREUM_TARGET_TRIGGERS_PER_BLOCK_RANGE: 10
+      ETHEREUM_REORG_THRESHOLD: 10
+      ETHEREUM_POLLING_INTERVAL: 250
+
   ipfs:
     image: ipfs/kubo:v0.17.0
     ports:
       - '5001:5001'
     volumes:
       - ./data/ipfs:/data/ipfs:Z
+
   postgres:
     image: postgres
     ports:
@@ -41,10 +47,29 @@ services:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      # FIXME: remove this env. var. which we shouldn't need. Introduced by
-      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
-      # workaround for https://github.com/docker/for-mac/issues/6270?
       PGDATA: "/var/lib/postgresql/data"
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data:Z
+
+  ganache:
+    image: trufflesuite/ganache-cli:v6.12.2
+    ports:
+      - '8545:8545'
+    command:
+      - --host=0.0.0.0
+      - --networkId=1337
+      - --accounts=10
+      - --defaultBalanceEther=10000
+      - --db=/ganache/data
+      - --mnemonic=test test test test test test test test test test test junk
+    volumes:
+      - ./data/ganache:/ganache:Z
+
+  tx-sender:
+    build: ./tx-sender
+    depends_on:
+      - ganache
+    environment:
+      - GANACHE_URL=http://ganache:8545
+      - MNEMONIC=test test test test test test test test test test test junk
