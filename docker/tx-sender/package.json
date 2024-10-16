@@ -1,9 +1,0 @@
-{
-  "name": "tx-sender",
-  "version": "1.0.0",
-  "description": "Submit random transactions to Ganache every second",
-  "main": "sendTx.js",
-  "dependencies": {
-    "ethers": "^5.7.0"
-  }
-}

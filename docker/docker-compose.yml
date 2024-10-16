@@ -57,6 +57,7 @@ services:
     ports:
       - '8545:8545'
     command:
+      - -b 2
       - --host=0.0.0.0
       - --networkId=1337
       - --accounts=10
@@ -65,11 +66,3 @@ services:
       - --mnemonic=test test test test test test test test test test test junk
     volumes:
       - ./data/ganache:/ganache:Z
-
-  tx-sender:
-    build: ./tx-sender
-    depends_on:
-      - ganache
-    environment:
-      - GANACHE_URL=http://ganache:8545
-      - MNEMONIC=test test test test test test test test test test test junk
