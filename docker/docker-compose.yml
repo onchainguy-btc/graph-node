@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node
+    image: graphprotocol/graph-node:1642eaf
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -34,7 +34,7 @@ services:
       - ./data/ipfs:/data/ipfs:Z
 
   postgres:
-    image: postgres
+    image: postgres:17
     ports:
       - '5432:5432'
     command:
